@@ -1,6 +1,6 @@
 //
-// Created for MyWorkouts
-// by  Stewart Lynch on 2024-01-19
+// Created for Custom Calendar
+// by  Stewart Lynch on 2024-01-22
 //
 // Follow me on Mastodon: @StewartLynch@iosdev.space
 // Follow me on Threads: @StewartLynch (https://www.threads.net)
@@ -8,6 +8,7 @@
 // Follow me on LinkedIn: https://linkedin.com/in/StewartLynch
 // Subscribe on YouTube: https://youTube.com/@StewartLynch
 // Buy me a ko-fi:  https://ko-fi.com/StewartLynch
+
 
 import Foundation
 
@@ -68,41 +69,72 @@ extension Date {
 //        let numberFromPreviousMonth = startOfMonthWeekday - 1
 //        return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
 //    }
-    // New to accomodate for different start of week days
-    var firstWeekDayBeforeStart: Date {
-        let startOfMonthWeekday = Calendar.current.component(.weekday, from: startOfMonth)
-        let numberFromPreviousMonth = startOfMonthWeekday - Self.firstDayOfWeek
-        return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
-    }
     
-    var calendarDisplayDays: [Date] {
-        var days: [Date] = []
-        // Current month days
-        for dayOffset in 0..<numberOfDaysInMonth {
-            let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfMonth)
-            days.append(newDay!)
-        }
-        // previous month days
-        for dayOffset in 0..<startOfPreviousMonth.numberOfDaysInMonth {
-            let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfPreviousMonth)
-            days.append(newDay!)
-        }
+//    // New to accomodate for different start of week days
+//    var firstWeekDayBeforeStart: Date {
+//        let startOfMonthWeekday = Calendar.current.component(.weekday, from: startOfMonth)
+//        let numberFromPreviousMonth = startOfMonthWeekday - Self.firstDayOfWeek
+//        return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
+//    }
+
+   // Fix: negative days causing issue for first row
+   var firstWeekDayBeforeStart: Date {
+       let startOfMonthWeekday = Calendar.current.component(.weekday, from: startOfMonth)
+       var numberFromPreviousMonth = startOfMonthWeekday - Self.firstDayOfWeek
+       if numberFromPreviousMonth < 0 {
+           numberFromPreviousMonth += 7 // Adjust to a 0-6 range if negative
+       }
+       return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
+   }
+
+//     var calendarDisplayDays: [Date] {
+//         var days: [Date] = []
+//         // Current month days
+//         for dayOffset in 0..<numberOfDaysInMonth {
+//             let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfMonth)
+//             days.append(newDay!)
+//         }
+//         // previous month days
+//         for dayOffset in 0..<startOfPreviousMonth.numberOfDaysInMonth {
+//             let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfPreviousMonth)
+//             days.append(newDay!)
+//         }
         
-        // Fixed to accomodate different weekday starts
-        return days.filter { $0 >= firstWeekDayBeforeStart && $0 <= endOfMonth }.sorted(by: <)
-    }
-    
-    var monthInt: Int {
-        Calendar.current.component(.month, from: self)
+// //        return days.filter { $0 >= sundayBeforeStart && $0 <= endOfMonth }.sorted(by: <)
+//         // Fixed to accomodate different weekday starts
+//         return days.filter { $0 >= firstWeekDayBeforeStart && $0 <= endOfMonth }.sorted(by: <)
+//     }
+
+    var calendarDisplayDays: [Date] {
+       var days: [Date] = []
+       // Start with days from the previous month to fill the grid
+       let firstDisplayDay = firstWeekDayBeforeStart
+       var day = firstDisplayDay
+       while day < startOfMonth {
+           days.append(day)
+           day = Calendar.current.date(byAdding: .day, value: 1, to: day)!
+       }
+       // Add days of the current month
+       for dayOffset in 0..<numberOfDaysInMonth {
+           let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfMonth)
+           days.append(newDay!)
+       }
+       return days
     }
     
     var yearInt: Int {
         Calendar.current.component(.year, from: self)
     }
+
+    
+    var monthInt: Int {
+        Calendar.current.component(.month, from: self)
+    }
     
     var dayInt: Int {
         Calendar.current.component(.day, from: self)
     }
+    
     var startOfDay: Date {
         Calendar.current.startOfDay(for: self)
     }
