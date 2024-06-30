@@ -25,8 +25,8 @@ struct CalendarView: View {
     init(date: Date, selectedActivity: Activity?) {
         self.date = date
         self.selectedActivity = selectedActivity
-        let endOfMonthAdjustment = Calendar.current.date(byAdding: .day, value: -1, to: date.endOfMonth)!
-        let predicate = #Predicate<Workout> {$0.date >= date.startOfMonth && $0.date <= endOfMonthAdjustment}
+        let endOfMonthAdjustment = Calendar.current.date(byAdding: .day, value: 1, to: date.endOfMonth)!
+        let predicate = #Predicate<Workout> {$0.date >= date.startOfMonth && $0.date < endOfMonthAdjustment}
         _workouts = Query(filter: predicate, sort: \Workout.date)
     }
     var body: some View {
