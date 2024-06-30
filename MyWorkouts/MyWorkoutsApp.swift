@@ -17,6 +17,9 @@ struct MyWorkoutsApp: App {
         WindowGroup {
             StartTab()
                 .modelContainer(for: Activity.self)
+                .onAppear {
+                    print(URL.applicationSupportDirectory.path(percentEncoded: false))
+                }
         }
     }
 }

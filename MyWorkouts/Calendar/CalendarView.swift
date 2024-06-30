@@ -19,6 +19,7 @@ struct CalendarView: View {
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
     @State private var days: [Date] = []
     let selectedActivity: Activity?
+    
     @Query private var workouts: [Workout]
     @State private var counts = [Int : Int]()
     
@@ -30,8 +31,8 @@ struct CalendarView: View {
     init(date: Date, selectedActivity: Activity?) {
         self.date = date
         self.selectedActivity = selectedActivity
-        let endOfMonthAdjustment = Calendar.current.date(byAdding: .day, value: -1, to: date.endOfMonth)!
-        let predicate = #Predicate<Workout> {$0.date >= date.startOfMonth && $0.date <= endOfMonthAdjustment}
+        let endOfMonthAdjustment = Calendar.current.date(byAdding: .day, value: 1, to: date.endOfMonth)!
+        let predicate = #Predicate<Workout> {$0.date >= date.startOfMonth && $0.date < endOfMonthAdjustment}
         _workouts = Query(filter: predicate, sort: \Workout.date)
     }
     var body: some View {
@@ -123,6 +124,7 @@ struct CalendarView: View {
             filteredWorkouts = workouts.filter {$0.activity == selectedActivity}
         }
         let mappedItems = filteredWorkouts.map{($0.date.dayInt, 1)}
+
         counts = Dictionary(mappedItems, uniquingKeysWith: +)
     }
     
